@@ -1,0 +1,12 @@
+INFO 2025-03-02 10:46:53,781 sms Preparing bulk SMS
+DEBUG 2025-03-02 10:46:53,784 sms Formatted phone numbers: 254743105374,254792956253,254768577923
+INFO 2025-03-02 10:46:54,990 sms SMS API status code: 200
+DEBUG 2025-03-02 10:46:54,991 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e567244-cb87-4c00-8d20-6c0fe46ef62f'}
+INFO 2025-03-02 12:13:26,622 sms Preparing bulk SMS
+DEBUG 2025-03-02 12:13:26,625 sms Formatted phone numbers: 254743105374,254792956253,254768577923
+INFO 2025-03-02 12:13:27,278 sms SMS API status code: 200
+DEBUG 2025-03-02 12:13:27,278 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e569138-0b29-4a49-82c0-6766e0713749'}
+INFO 2025-03-02 12:21:37,406 sms Preparing bulk SMS
+DEBUG 2025-03-02 12:21:37,408 sms Formatted phone numbers: 254743105374,254792956253,254768577923
+INFO 2025-03-02 12:21:40,758 sms SMS API status code: 200
+DEBUG 2025-03-02 12:21:40,758 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e569427-f356-4122-b927-a2a74e54ac89'}

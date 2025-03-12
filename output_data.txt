@@ -1,0 +1,229 @@
+=== Keyword Responses ===
+Trigger Word: test
+Response Text: This is a valid test response
+Priority: high
+Notify Owner: True
+Icon: 
+
+Trigger Word: cashapp
+Response Text: 🟢 NEW CASHAPP ALERT!!
+Name; Brianna Lua
+Cashtag; $Brianna72yw
+(Include your username in the notes — Type exactly as shown
+Priority: high
+Notify Owner: True
+Icon: 
+
+Trigger Word: chime
+Response Text: 🟡 New Chime Alert!
+Name:Xavier Salgado
+Chime Tag: $xavier-salgado-5
+(Include your username in the Chime notes — Type exactly as shown)
+Priority: high
+Notify Owner: True
+Icon: 
+
+Trigger Word: venmo
+Response Text: 🟣 Venmo
+Name: Christy Jarman
+Cashtag: @christy_jarman_10
+(Include your username in the Venmo notes — Type exactly as shown)
+Priority: high
+Notify Owner: True
+Icon: 
+
+Trigger Word: games
+Response Text: we have the following games.
+Orion Stars,
+ Firekirin,
+ Vegas, 
+Juwa,
+PandaMaster, 
+ultrapanda. 
+gamevault
+vblink
+
+lem me know which one you would like to play
+Priority: high
+Notify Owner: False
+Icon: 
+
+Trigger Word: cashout
+Response Text: ok dear. hold on as i check
+Priority: high
+Notify Owner: True
+Icon: 
+
+Trigger Word: cashout rules
+Response Text: 💸 RULES & REDEEM LIMITS
+
+
+Minimum Deposit: $5
+Minimum Redeem: $30
+max redeem for referral bonus is $25
+Maximum Redeem: $500 every 24 hours
+📸 Send a screenshot when adding credits via Cash App, Chime or venmo.
+(Note: Amounts with change will be rounded down, e.g., $2.90 = $2 = 2 credits)
+
+🕒 CASHOUTS: Deposit & Max Redeem Tiers
+
+Deposits 5-10: Max redeem $50
+Deposits 11-15: Max redeem $75
+Deposits 16-25: Max redeem $100
+Deposits 26-49: Max redeem $150
+Deposits 50-99: Max redeem $200
+Deposits 100-199: Max redeem $500
+
+⚠️ Additional Rules
+
+No cashouts on Mondays until 5PM
+
+Redemptions are processed once every 24 hours
+
+Cashouts are done based on your last deposit
+
+1 cashout allowed every 24 hours
+
+Max redeem per deposit is 1 time for deposits between $5-$49 – any extra balance is cleared and reset to zero.
+Max redeem per deposit of $50 and above is 2 times – any extra balance is cleared and reset to zero.
+
+
+Referral bonus is loaded when the player loads the second time.
+Priority: high
+Notify Owner: False
+Icon: 
+
+Trigger Word: orion link
+Response Text: http://start.orionstars.vip:8580/index.html
+Priority: normal
+Notify Owner: False
+Icon: 
+
+Trigger Word: PayPal
+Response Text: nyaberi394@gmail.com
+
+let me know when you make a deposit
+Priority: normal
+Notify Owner: True
+Icon: 
+
+Trigger Word: referral bonus
+Response Text: we are offering 40% referral bonus on the deposit your friend makes
+Priority: normal
+Notify Owner: True
+Icon: 
+
+Trigger Word: sent
+Response Text: Checking dear
+Priority: normal
+Notify Owner: True
+Icon: 
+
+Trigger Word: deposit
+Response Text: Checking dear or you can share a screenshot
+Priority: normal
+Notify Owner: True
+Icon: 
+
+Trigger Word: whats my username
+Response Text: hold on as i check
+Priority: normal
+Notify Owner: True
+Icon: 
+
+Trigger Word: reset password
+Response Text: ok..hold on
+Priority: normal
+Notify Owner: True
+Icon: 
+
+Trigger Word: freeplay
+Response Text: hello, 
+we currently don't have a freeplay, but we are offering 100% signup bonus with fast cashouts
+Priority: high
+Notify Owner: False
+Icon: 
+
+Trigger Word: fp
+Response Text: hello,
+we currently don't have a freeplay, but we are offering 100% signup bonus with fast cashouts
+Priority: normal
+Notify Owner: False
+Icon: 
+
+=== SMS Recipients ===
+Name: Dickson
+Phone: 0743105374
+Is Active: True
+
+Name: chris
+Phone: 0792956253
+Is Active: False
+
+Name: Babe
+Phone: 0768577923
+Is Active: False
+
+Name: gloria
+Phone: 0708928940
+Is Active: True
+
+=== Scheduled Messages ===
+Content: 🌟 BIGGEST BONUS DEALS – PLAY & WIN NOW! 💰
+
+🚀 100% SIGNUP BONUS! Double your deposit & start winning!
+💸 30% Regular Bonus – More play, more rewards!
+👥 40% Referral Bonus – Earn BIG for every friend!
+
+🔥 PLAY TOP GAMES: 🎮 Orion Stars, 🔥 Firekirin, 🎰 Vegas, 🧧 Juwa, 🐼 PandaMaster, 🐼 UltraPanda, 🔑 GameVault, 🔮 Vblink!
+
+💵 INSTANT CASHOUT! DM NOW & WIN BIG! 🚀💰
+📲 WhatsApp: +1 (954) 832-8649
+📲 Telegram channel: https://t.me/stacyslots21 
+👍 Follow,like and follow Our pagehttps://www.facebook.com/profile.php?id=61556406437296
+
+we accept chime, venmo, cashapp and Paypal
+
+Start playing and cashing out NOW! 💸🔥
+Interval (in hours): 1
+Order: 1
+Is Active: True
+Last Sent: 2025-03-03 09:29:59+00:00
+
+Content: 🏆💸 REFERRAL BONUS ALERT!
+
+🎉 Tag a friend and get a $10 bonus when your referral deposits twice!
+
+share the  facebook link: https://www.facebook.com/people/Elite-Fishgames/61556949603997/
+and Claim your reward now when you refer your friend:
+
+find us on whatsapp
+📞 +1 954 832 8649
+Interval (in hours): 1
+Order: 2
+Is Active: True
+Last Sent: None
+
+Content: 🎉SPECIAL  PROMO! 🎉
+Get a 35% bonus on deposits over $5 💰 Grab the offer while it lasts! ⏳
+⏳ fast cashout available
+Interval (in hours): 1
+Order: 3
+Is Active: True
+Last Sent: None
+
+Content: YOU PLAY, WE PAY
+💰 Deposit as low as $5 and level up your gaming experience with us!
+🎁 Enjoy a 100% Sign-Up Bonus and 	30% bonus on all future deposits.
+💸 Instant Cashouts available!
+Interval (in hours): 1
+Order: 4
+Is Active: True
+Last Sent: 2025-03-03 14:57:21+00:00
+
+Content: Why wait? 🎉 Players are winning big! 💰 Sign up now and try your luck! 🍀
+Interval (in hours): 1
+Order: 5
+Is Active: True
+Last Sent: 2025-03-03 09:14:08+00:00
+

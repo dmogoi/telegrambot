@@ -1,0 +1,56 @@
+INFO 2025-03-02 07:17:11,146 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:17:11,148 sms Formatted phone numbers: 254743105374
+INFO 2025-03-02 07:17:12,030 sms SMS API status code: 200
+DEBUG 2025-03-02 07:17:12,030 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562745-54d4-4dcf-b734-f1a4aa41dd85'}
+INFO 2025-03-02 07:22:32,721 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:22:32,722 sms Formatted phone numbers: 254743105374
+INFO 2025-03-02 07:22:33,842 sms SMS API status code: 200
+DEBUG 2025-03-02 07:22:33,844 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562930-3222-4a88-a255-5d6ae23c8811'}
+INFO 2025-03-02 07:25:46,469 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:25:46,470 sms Formatted phone numbers: 254743105374
+INFO 2025-03-02 07:25:47,439 sms SMS API status code: 200
+DEBUG 2025-03-02 07:25:47,439 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562a57-301f-4ef2-9eb4-3011968cd7e2'}
+INFO 2025-03-02 07:27:12,142 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:27:12,143 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:27:12,715 sms SMS API status code: 200
+DEBUG 2025-03-02 07:27:12,717 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562ad9-ee6e-4d7e-8b66-35b36313b123'}
+INFO 2025-03-02 07:28:48,304 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:28:48,304 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:28:48,959 sms SMS API status code: 200
+DEBUG 2025-03-02 07:28:48,959 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562b6c-c5fe-4edf-95a6-2b0557668a7a'}
+INFO 2025-03-02 07:29:24,442 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:29:24,442 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:29:25,023 sms SMS API status code: 200
+DEBUG 2025-03-02 07:29:25,024 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562ba3-cd1f-47c6-b7d3-fd237858f16b'}
+INFO 2025-03-02 07:35:03,809 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:35:03,810 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:35:04,437 sms SMS API status code: 200
+DEBUG 2025-03-02 07:35:04,437 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562da9-ba4e-469a-98b2-b7339593a825'}
+INFO 2025-03-02 07:35:07,571 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:35:07,572 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:35:08,137 sms SMS API status code: 200
+DEBUG 2025-03-02 07:35:08,138 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e562daf-608d-4c1f-a4ce-352b6865bb2e'}
+INFO 2025-03-02 07:50:47,357 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:50:47,357 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:50:48,256 sms SMS API status code: 200
+DEBUG 2025-03-02 07:50:48,257 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e563349-c9d8-405a-8a01-5de1e245c208'}
+INFO 2025-03-02 07:51:50,228 sms Preparing bulk SMS
+DEBUG 2025-03-02 07:51:50,229 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 07:51:50,789 sms SMS API status code: 200
+DEBUG 2025-03-02 07:51:50,789 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e5633a9-4dfd-4946-a574-b9508ed4f124'}
+INFO 2025-03-02 08:29:17,378 sms Preparing bulk SMS
+DEBUG 2025-03-02 08:29:17,379 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 08:29:18,029 sms SMS API status code: 200
+DEBUG 2025-03-02 08:29:18,030 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e56410e-5763-4465-ab78-47712acb3fc7'}
+INFO 2025-03-02 09:16:19,048 sms Preparing bulk SMS
+DEBUG 2025-03-02 09:16:19,048 sms Formatted phone numbers: 254743105374,254792956253
+INFO 2025-03-02 09:16:19,678 sms SMS API status code: 200
+DEBUG 2025-03-02 09:16:19,678 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e5651df-da63-41d6-93e4-66d2f85def66'}
+INFO 2025-03-02 09:41:32,879 sms Preparing bulk SMS
+DEBUG 2025-03-02 09:41:32,881 sms Formatted phone numbers: 254743105374,254792956253,254768577923
+INFO 2025-03-02 09:41:35,118 sms SMS API status code: 200
+DEBUG 2025-03-02 09:41:35,118 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e565ae7-c54e-47ef-b298-742fb21750a4'}
+INFO 2025-03-02 09:46:34,797 sms Preparing bulk SMS
+DEBUG 2025-03-02 09:46:34,798 sms Formatted phone numbers: 254743105374,254792956253,254768577923
+INFO 2025-03-02 09:46:35,495 sms SMS API status code: 200
+DEBUG 2025-03-02 09:46:35,495 sms SMS API response: {'status': True, 'responseCode': '0200', 'message': 'Accepted', 'bulkId': '9e565cb2-875b-4ad5-a8fc-3610a50131af'}

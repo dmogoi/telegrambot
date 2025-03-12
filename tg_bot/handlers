@@ -1,0 +1,59 @@
+# from telethon import TelegramClient, events
+# from django.conf import settings
+# from .models import KeywordResponse
+# import os
+# import asyncio
+#
+#
+# class PersonalTelegramAssistant:
+#     def __init__(self):
+#         self.client = TelegramClient(
+#             'personal_assistant',
+#             int(settings.API_ID),
+#             settings.API_HASH
+#         )
+#
+#         # Register handlers
+#         self.client.add_event_handler(
+#             self.handle_all_messages,
+#             events.NewMessage(incoming=True)
+#         )
+#
+#     async def handle_all_messages(self, event):
+#         # Check message source
+#         if event.is_private or event.is_group:
+#             await self.process_message(event)
+#
+#     async def process_message(self, event):
+#         message = event.message.text.lower()
+#
+#         # Check for trigger words
+#         for keyword in KeywordResponse.objects.all():
+#             if keyword.trigger_word in message:
+#                 await self.handle_trigger(event, keyword)
+#                 break
+#         else:
+#             await event.reply("I'll get back to you shortly!")
+#
+#     async def handle_trigger(self, event, keyword):
+#         # Send response to user
+#         await event.reply(keyword.response_text)
+#
+#         # Notify owner if required
+#         if keyword.notify_owner:
+#             self.notify_owner(
+#                 f"Urgent: User {event.sender.id} needs help with {keyword.trigger_word}"
+#             )
+#
+#     def notify_owner(self, message):
+#         from twilio.rest import Client
+#         Client(settings.TWILIO_SID, settings.TWILIO_TOKEN).messages.create(
+#             body=message,
+#             from_=settings.TWILIO_PHONE,
+#             to=settings.OWNER_PHONE
+#         )
+#
+#     async def start(self):
+#         await self.client.start(settings.PHONE_NUMBER)
+#         await self.client.run_until_disconnected()
+

@@ -1,0 +1,121 @@
+INFO 2025-03-02 10:44:20,429 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 10:44:21,198 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 11:43:47,813 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 11:43:55,485 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 11:43:55,485 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 11:44:17,028 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 11:44:17,032 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 11:48:30,073 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 11:48:33,849 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 11:48:33,849 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 11:48:38,634 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 11:48:38,634 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 11:49:51,398 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 11:49:51,398 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 11:50:03,692 mtprotosender Connecting to 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 11:50:03,923 mtprotosender Connection to 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 11:53:20,204 sms Preparing bulk SMS
+INFO 2025-03-02 11:53:21,313 sms SMS API status code: 200
+INFO 2025-03-02 12:03:32,368 mtprotosender Disconnecting from 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:03:32,369 mtprotosender Disconnection from 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:03:36,838 mtprotosender Connecting to 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:03:37,148 mtprotosender Connection to 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:05:53,592 updates Got difference for channel 2442006944 updates
+INFO 2025-03-02 12:05:54,099 sms Preparing bulk SMS
+INFO 2025-03-02 12:05:55,960 sms SMS API status code: 200
+INFO 2025-03-02 12:07:09,389 sms Preparing bulk SMS
+INFO 2025-03-02 12:07:10,108 sms SMS API status code: 200
+INFO 2025-03-02 12:09:40,813 mtprotosender Disconnecting from 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:09:40,815 mtprotosender Disconnection from 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:25:12,454 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 12:25:12,454 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 12:25:19,162 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 12:25:19,163 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 12:28:39,421 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 12:28:39,421 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 12:28:42,338 mtprotosender Connecting to 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:28:42,547 mtprotosender Connection to 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:30:07,383 mtprotosender Disconnecting from 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:30:07,385 mtprotosender Disconnection from 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:31:10,910 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 12:31:10,911 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 12:31:14,078 mtprotosender Connecting to 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:31:14,288 mtprotosender Connection to 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:31:23,352 sms Preparing bulk SMS
+INFO 2025-03-02 12:31:24,010 sms SMS API status code: 200
+INFO 2025-03-02 12:37:25,325 mtprotosender Disconnecting from 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 12:37:25,326 mtprotosender Disconnection from 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 12:38:40,421 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 12:38:40,422 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 19:26:09,003 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 19:26:09,003 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 19:26:11,349 mtprotosender Connecting to 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 19:26:11,556 mtprotosender Connection to 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 19:27:26,306 sms Preparing bulk SMS
+INFO 2025-03-02 19:27:26,955 sms SMS API status code: 200
+INFO 2025-03-02 19:29:27,213 sms Preparing bulk SMS
+INFO 2025-03-02 19:29:28,279 sms SMS API status code: 200
+INFO 2025-03-02 19:34:45,887 sms Preparing bulk SMS
+INFO 2025-03-02 19:34:47,555 sms SMS API status code: 200
+INFO 2025-03-02 19:35:08,265 sms Preparing bulk SMS
+INFO 2025-03-02 19:35:08,813 sms SMS API status code: 200
+INFO 2025-03-02 19:39:27,162 sms Preparing bulk SMS
+INFO 2025-03-02 19:39:27,723 sms SMS API status code: 200
+INFO 2025-03-02 19:40:02,524 sms Preparing bulk SMS
+INFO 2025-03-02 19:40:03,181 sms SMS API status code: 200
+INFO 2025-03-02 19:54:17,009 sms Preparing bulk SMS
+INFO 2025-03-02 19:54:17,722 sms SMS API status code: 200
+INFO 2025-03-02 19:54:46,496 sms Preparing bulk SMS
+INFO 2025-03-02 19:54:47,029 sms SMS API status code: 200
+INFO 2025-03-02 20:15:14,506 updates Got difference for channel 1181109427 updates
+INFO 2025-03-02 20:17:13,930 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 20:26:13,669 updates Got difference for account updates
+INFO 2025-03-02 20:27:14,151 updates Got difference for channel 1181109427 updates
+INFO 2025-03-02 20:47:14,338 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 20:52:24,083 sms Preparing bulk SMS
+INFO 2025-03-02 20:52:24,708 sms SMS API status code: 200
+INFO 2025-03-02 21:15:14,702 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 21:16:14,198 sms Preparing bulk SMS
+INFO 2025-03-02 21:16:14,917 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 21:16:15,276 sms SMS API status code: 200
+INFO 2025-03-02 21:17:14,706 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 21:47:15,201 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 22:17:15,318 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 22:20:16,217 updates Got difference for channel 1597009453 updates
+INFO 2025-03-02 22:26:16,247 updates Got difference for channel 1181109427 updates
+INFO 2025-03-02 22:38:39,205 sms Preparing bulk SMS
+INFO 2025-03-02 22:38:39,809 sms SMS API status code: 200
+INFO 2025-03-02 22:41:16,259 updates Got difference for account updates
+INFO 2025-03-02 22:42:15,530 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 22:47:15,592 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 22:52:16,589 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 23:00:04,007 sms Preparing bulk SMS
+INFO 2025-03-02 23:00:04,693 sms SMS API status code: 200
+INFO 2025-03-02 23:03:05,003 updates Got difference for account updates
+INFO 2025-03-02 23:08:17,325 updates Got difference for account updates
+INFO 2025-03-02 23:13:18,998 autoreload C:\Users\Eng. Dickson\Documents\PROJECTS\tg_bot\bot\models.py changed, reloading.
+INFO 2025-03-02 23:13:19,953 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 23:15:02,341 autoreload C:\Users\Eng. Dickson\Documents\PROJECTS\tg_bot\bot\models.py changed, reloading.
+INFO 2025-03-02 23:15:03,457 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 23:17:15,951 updates Got difference for channel 1771261142 updates
+INFO 2025-03-02 23:22:33,620 autoreload C:\Users\Eng. Dickson\Documents\PROJECTS\tg_bot\bot\models.py changed, reloading.
+INFO 2025-03-02 23:22:34,489 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 23:23:49,013 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 23:24:25,276 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 23:24:25,276 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 23:24:42,791 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 23:24:42,792 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 23:24:55,404 mtprotosender Disconnecting from 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 23:24:55,406 mtprotosender Disconnection from 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 23:25:43,749 libssl Failed to load SSL library: <class 'OSError'> (no library called "ssl" found)
+INFO 2025-03-02 23:25:43,750 aes cryptg module not installed and libssl not found, falling back to (slower) Python encryption
+INFO 2025-03-02 23:25:47,013 mtprotosender Connecting to 149.154.167.91:443/TcpFull...
+INFO 2025-03-02 23:25:47,228 mtprotosender Connection to 149.154.167.91:443/TcpFull complete!
+INFO 2025-03-02 23:27:32,719 sms Preparing bulk SMS
+INFO 2025-03-02 23:27:33,337 sms SMS API status code: 200
+INFO 2025-03-02 23:28:48,120 autoreload C:\Users\Eng. Dickson\Documents\PROJECTS\tg_bot\bot\admin.py changed, reloading.
+INFO 2025-03-02 23:28:49,099 autoreload Watching for file changes with StatReloader
+INFO 2025-03-02 23:31:02,593 autoreload C:\Users\Eng. Dickson\Documents\PROJECTS\tg_bot\config\settings.py changed, reloading.
+INFO 2025-03-02 23:47:49,407 updates Got difference for channel 1771261142 updates
+INFO 2025-03-03 00:09:10,433 mtprotosender Disconnecting from 149.154.167.91:443/TcpFull...
+INFO 2025-03-03 00:09:10,435 mtprotosender Disconnection from 149.154.167.91:443/TcpFull complete!
