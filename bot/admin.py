@@ -67,6 +67,8 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
     list_filter = ('is_active',)
 
 
+
+
 # Register the models with the admin site
 admin.site.register(KeywordResponse, KeywordResponseAdmin)
 admin.site.register(SMSRecipient, SMSRecipientAdmin)

@@ -62,22 +62,38 @@ class SMSRecipient(models.Model):
 
 
 class ScheduledMessage(models.Model):
-    """
-    Model for scheduled messages to be sent at a specific interval (e.g., every X hours).
-    These messages can be sent to groups, channels, or users, and the system tracks their sending status.
-    """
-    content = models.TextField()  # The content of the message to be sent
-    interval_hours = models.PositiveIntegerField(default=1)  # Interval in hours for the next scheduled send
-    order = models.PositiveIntegerField(unique=True)  # Order in which the message should be sent (to maintain sequence)
-    is_active = models.BooleanField(default=True)  # Flag indicating whether the message is active or not
-    last_sent = models.DateTimeField(null=True, blank=True)  # Timestamp of the last time the message was sent
-    is_processing = models.BooleanField(default=False)  # Flag to prevent reprocessing the message while it's being sent
+    content = models.TextField()
+    interval_hours = models.PositiveIntegerField(default=1)
+    order = models.PositiveIntegerField(unique=True)
+    is_active = models.BooleanField(default=True)
+    last_sent = models.DateTimeField(null=True, blank=True)
+    is_processing = models.BooleanField(default=False)
     image = models.ImageField(upload_to='scheduled_images/', null=True, blank=True)
+    next_scheduled = models.DateTimeField(null=True, blank=True)  # NEW FIELD
 
     class Meta:
-        # Ensure that messages are processed in the correct order based on 'order' field
         ordering = ['order']
 
     def __str__(self):
-        # String representation of the scheduled message (showing order and whether it is active)
         return f"Message #{self.order} ({'active' if self.is_active else 'inactive'})"
+
+    def save(self, *args, **kwargs):
+        """Automatically calculate next scheduled time"""
+        if not self.next_scheduled:
+            if self.last_sent:
+                self.next_scheduled = self.last_sent + timezone.timedelta(hours=self.interval_hours)
+            else:
+                self.next_scheduled = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class RefreshTracker(models.Model):
+    last_modified = models.DateTimeField(auto_now=True)
+    current_version = models.PositiveIntegerField(default=0)
+
+    @classmethod
+    def bump_version(cls):
+        tracker, _ = cls.objects.get_or_create(pk=1)
+        tracker.current_version += 1
+        tracker.save()
+        return tracker.current_version

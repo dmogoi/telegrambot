@@ -1,8 +1,12 @@
+import getpass
 import logging
 import asyncio
+import socket
 import time
 import re
 from collections import defaultdict
+
+from django.core.cache import cache
 from telethon import TelegramClient, events
 from django.conf import settings
 from django.db import close_old_connections
@@ -37,10 +41,17 @@ class RateLimiter:
 
 class AdvancedBot:
     def __init__(self):
+        # Generate unique session name with host identifier
+        self.cache_version = 1  # Add versioning
+        self.cache_prefix = "bot_data_"
+        self.session_name = f"bot_session_{socket.gethostname()}"
         self.client = TelegramClient(
-            'user_session',  # session name
+            self.session_name,  # Use unique session name
             settings.API_ID,
-            settings.API_HASH
+            settings.API_HASH,
+            connection_retries=3,  # Added retry mechanism
+            device_model="BotServer v2.1"  # Custom device identifier
+
         )
         self.keyword_cache = {'high': [], 'normal': []}
         self.last_refresh = 0
@@ -53,30 +64,35 @@ class AdvancedBot:
             "PandaMaster", "ultrapanda", "gamevault", "vblink"
         ]
 
-    async def refresh_keywords(self):
-        """Refresh keyword cache only if there are changes in the database."""
-        try:
-            logger.debug("🔄 Checking if keyword cache update is needed...")
+    def get_cache_key(self, key_type):
+        return f"{self.cache_prefix}{key_type}_v{self.cache_version}"
 
-            # Close old connections to avoid memory leaks
-            await sync_to_async(close_old_connections, thread_sensitive=True)()
+    async def refresh_keywords(self, force=False):
+        """Refresh cache with version control and smart invalidation"""
+        cache_key_high = self.get_cache_key('high_priority')
+        cache_key_normal = self.get_cache_key('normal_priority')
 
-            latest_high_priority = await sync_to_async(
-                lambda: list(KeywordResponse.objects.filter(priority='high'))
-            )()
-            latest_normal_priority = await sync_to_async(
-                lambda: list(KeywordResponse.objects.filter(priority='normal'))
-            )()
+        # Only refresh if forced or cache is empty
+        if force or not cache.get(cache_key_high):
+            try:
+                await sync_to_async(close_old_connections)()
 
-            if latest_high_priority != self.keyword_cache['high'] or latest_normal_priority != self.keyword_cache[
-                'normal']:
-                self.keyword_cache['high'] = latest_high_priority
-                self.keyword_cache['normal'] = latest_normal_priority
-                self.last_refresh = time.time()
+                high_priority = await sync_to_async(list)(
+                    KeywordResponse.objects.filter(priority='high')
+                )
+                normal_priority = await sync_to_async(list)(
+                    KeywordResponse.objects.filter(priority='normal')
+                )
+
+                cache.set(cache_key_high, high_priority, timeout=300)
+                cache.set(cache_key_normal, normal_priority, timeout=300)
                 logger.info("✅ Keyword cache refreshed successfully")
 
-        except Exception as e:
-            logger.error(f"⚠️ Error refreshing keywords: {str(e)}")
+            except Exception as e:
+                logger.error(f"⚠️ Cache refresh error: {str(e)}")
+
+    def get_cached_keywords(self, priority):
+        return cache.get(self.get_cache_key(f'{priority}_priority')) or []
 
     def build_keyword_pattern(self):
         """Builds a single optimized regex pattern for keyword matching."""
@@ -225,30 +241,37 @@ class AdvancedBot:
             logger.error(f"❌ Error notifying owner: {str(e)}")
 
     async def start(self):
-        """Starts the Telegram bot and connects to Telegram API."""
+        """Starts the Telegram bot with enhanced connection handling"""
         try:
             logger.info("🔄 Initializing connection...")
-            await asyncio.sleep(5)
             await self.client.connect()
 
-            # Re-authentication if needed
-            if not await self.client.is_user_authorized():
-                print("⚠️ Not authorized. Please login.")
-                await self.client.send_code_request(settings.PHONE_NUMBER)
-                code = input("Enter the code sent to your phone: ")
-                await self.client.sign_in(settings.PHONE_NUMBER, code)
+            # Validate connection state
+            if not self.client.is_connected():
+                await self.client.reconnect()
 
-                # Handle two-step verification (password)
-                try:
-                    await self.client.sign_in(password=input("Enter your 2FA password: "))
-                except SessionPasswordNeededError:
-                    print("Session password needed. Please provide it.")
-                    await self.client.sign_in(password=input("Enter your 2FA password: "))
+            # Enhanced authorization flow
+            if not await self.client.is_user_authorized():
+                logger.warning("⚠️ Session not authorized. Starting authentication...")
+                await self.client.start(
+                    phone=lambda: settings.PHONE_NUMBER,
+                    code_callback=lambda: input("Enter 2FA code: "),
+                    password=lambda: getpass.getpass("Enter password: ")
+                )
 
             logger.info("✅ Successfully authorized!")
             self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
-            await self.client.run_until_disconnected()
+
+            # Maintain connection
+            while True:
+                try:
+                    await self.client.run_until_disconnected()
+                except ConnectionError:
+                    logger.warning("⚠️ Connection lost. Reconnecting...")
+                    await asyncio.sleep(5)
+                    await self.client.connect()
 
         except Exception as e:
-            logger.error(f"❌ Connection failed: {str(e)}")
+            logger.error(f"❌ Critical connection failure: {str(e)}")
+            await self.client.disconnect()
             raise

@@ -106,10 +106,10 @@ DATABASES = {
 
 
 
-#CELERY_BROKER_URL = 'redis://localhost:6379/0'
-#CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_BROKER_URL = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
-CELERY_RESULT_BACKEND = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# CELERY_BROKER_URL = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
 
 
 # Password validation
@@ -151,6 +151,8 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 
 
@@ -200,5 +202,13 @@ LOGGING = {
             'level': 'WARNING',
             'propagate': False,
         },
+    }
+}
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
     }
 }

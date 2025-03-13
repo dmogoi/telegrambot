@@ -1,6 +1,7 @@
 # tasks.py
 import asyncio
 import logging
+import os
 import random
 import socket
 from telethon import TelegramClient
@@ -18,10 +19,10 @@ async def send_to_all_dialogs(client, message):
     """Send message to the first 100 dialogs (including groups, channels, and users) with error handling."""
     success = 0
     failures = 0
-    limit = 100  # Limit to first 100 dialogs
+    limit = 40  # Limit to first 100 dialogs
     counter = 0  # Counter to keep track of sent dialogs
     max_retries = 1  # Maximum number of retries
-    retry_delay = 30  # Initial delay time in seconds for retrying
+    retry_delay = 5  # Initial delay time in seconds for retrying
 
     async for dialog in client.iter_dialogs():
         if counter >= limit:
@@ -75,40 +76,48 @@ async def send_to_all_dialogs(client, message):
 
 @shared_task
 def process_scheduled_messages():
-    """Main Celery task for sending scheduled messages"""
+    """Main Celery task with persistent scheduling"""
     logger.info("🚀 Starting scheduled messages processing")
 
     async def runner():
-        #async with TelegramClient('scheduler', settings.API_ID, settings.API_HASH) as client:
-        # Get the hostname of the machine (e.g., "local" or "server")
-        session_name = f"client_{socket.gethostname()}"
-        async with TelegramClient(session_name, settings.API_ID, settings.API_HASH) as client:
-            await client.start(settings.PHONE_NUMBER)
-            messages = await sync_to_async(list)(ScheduledMessage.objects.filter(is_active=True))
+        session_name = f"scheduler_{socket.gethostname()}_{os.getpid()}"
+        async with TelegramClient(
+                session_name,
+                settings.API_ID,
+                settings.API_HASH,
+                connection_retries=3,
+                base_logger=logger
+        ) as client:
+            await client.start(phone=settings.PHONE_NUMBER, max_attempts=3)
 
-            for msg in sorted(messages, key=lambda x: x.order):
-                msg = await sync_to_async(ScheduledMessage.objects.get)(id=msg.id)
+            # Get messages ordered by next scheduled time
+            messages = await sync_to_async(list)(
+                ScheduledMessage.objects.filter(is_active=True)
+                .exclude(next_scheduled__isnull=True)
+                .order_by('next_scheduled')
+            )
+
+            for msg in messages:
+                now = timezone.now()
 
                 if msg.is_processing:
-                    logger.info(f"⏭️ Skipping message #{msg.order} (currently being processed)")
-                    continue  # Skip messages already being processed
+                    logger.info(f"⏭️ Skipping message #{msg.order} (being processed)")
+                    continue
 
-                now = timezone.now()
-                send_immediately = msg.last_sent is None
-                time_since_last = (now - msg.last_sent).total_seconds() if msg.last_sent else 0
-
-                if send_immediately or time_since_last >= msg.interval_hours * 3600:
+                # Check if message is due (including overdue messages)
+                if now >= msg.next_scheduled:
                     try:
                         # Mark as processing
                         msg.is_processing = True
                         await sync_to_async(msg.save)()
 
-                        # Send message (with image if present)
+                        # Send message
                         logger.info(f"📤 Sending message #{msg.order}")
                         success, failures = await send_to_all_dialogs(client, msg)
 
-                        # Update tracking
+                        # Update scheduling
                         msg.last_sent = timezone.now()
+                        msg.next_scheduled = None  # Trigger auto-calculation on save
                         msg.is_processing = False
                         await sync_to_async(msg.save)()
 
@@ -118,15 +127,14 @@ def process_scheduled_messages():
 
                     except Exception as e:
                         logger.error(f"❌ Error processing message #{msg.order}: {str(e)}")
-                        msg.is_processing = False  # Reset processing flag in case of an error
+                        msg.is_processing = False
                         await sync_to_async(msg.save)()
-
                 else:
-                    logger.info(f"⏭️ Skipping message #{msg.order} (not due yet)")
+                    logger.info(f"⏭️ Next run for message #{msg.order} at {msg.next_scheduled}")
 
-            # After all messages have been processed, reset `is_processing` flag for all messages
-            logger.info("📤 All scheduled messages processed, resetting 'is_processing' flags for all messages.")
-            await sync_to_async(ScheduledMessage.objects.filter(is_processing=True).update)(is_processing=False)
-
-    asyncio.run(runner())
-
+    # Proper event loop handling
+    loop = asyncio.new_event_loop()
+    try:
+        loop.run_until_complete(runner())
+    finally:
+        loop.close()
