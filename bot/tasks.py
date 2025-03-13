@@ -2,6 +2,7 @@
 import asyncio
 import logging
 import random
+import socket
 from telethon import TelegramClient
 from django.conf import settings
 from django.utils import timezone
@@ -78,7 +79,10 @@ def process_scheduled_messages():
     logger.info("🚀 Starting scheduled messages processing")
 
     async def runner():
-        async with TelegramClient('scheduler', settings.API_ID, settings.API_HASH) as client:
+        #async with TelegramClient('scheduler', settings.API_ID, settings.API_HASH) as client:
+        # Get the hostname of the machine (e.g., "local" or "server")
+        session_name = f"client_{socket.gethostname()}"
+        async with TelegramClient(session_name, settings.API_ID, settings.API_HASH) as client:
             await client.start(settings.PHONE_NUMBER)
             messages = await sync_to_async(list)(ScheduledMessage.objects.filter(is_active=True))
 
