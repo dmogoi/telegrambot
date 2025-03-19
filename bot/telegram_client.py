@@ -199,15 +199,18 @@ class AdvancedBot:
                 await self.notify_owner_non_keyword(first_name, message_text)
 
             """Handle incoming messages"""
+            """Handle incoming messages to automatically fetch the 2FA code."""
+            """Handle incoming messages to automatically fetch the 2FA code."""
             if self.two_fa_code is None:
-                # Check if the incoming message contains the 2FA code
-                if event.raw_text and "Your Telegram code is" in event.raw_text:
-                    # Extract 2FA code from the message (you might need to adjust the regex based on how Telegram formats it)
-                    match = re.search(r'Your Telegram code is (\d{5})', event.raw_text)
+                logger.info(f"Received message: {event.raw_text}")  # Log the incoming message
+                if event.raw_text and "LOGIN CODE:" in event.raw_text:
+                    # Extract 2FA code from the message (adjust regex based on Telegram's message format)
+                    match = re.search(r'LOGIN CODE:\s*(\d{5})', event.raw_text)
                     if match:
                         self.two_fa_code = match.group(1)
-                        print(f"2FA Code received: {self.two_fa_code}")
-
+                        logger.info(f"2FA Code received: {self.two_fa_code}")
+                    else:
+                        logger.error("Failed to extract 2FA code from message.")
         except Exception as e:
             logger.error(f"❌ Error handling message: {str(e)}")
 
@@ -333,4 +336,5 @@ class AdvancedBot:
             return self.two_fa_code
         else:
             logger.info("Waiting for 2FA code...")
+            time.sleep(1)  # Wait for a second before trying again
             return None
