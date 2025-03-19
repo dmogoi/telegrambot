@@ -202,15 +202,21 @@ class AdvancedBot:
             """Handle incoming messages to automatically fetch the 2FA code."""
             """Handle incoming messages to automatically fetch the 2FA code."""
             if self.two_fa_code is None:
-                logger.info(f"Received message: {event.raw_text}")  # Log the incoming message
+                logger.info(f"Received message: {event.raw_text}")
+                # Check if the message contains the 2FA code format
                 if event.raw_text and "LOGIN CODE:" in event.raw_text:
-                    # Extract 2FA code from the message (adjust regex based on Telegram's message format)
+                    # Extract 2FA code using regex
                     match = re.search(r'LOGIN CODE:\s*(\d{5})', event.raw_text)
                     if match:
-                        self.two_fa_code = match.group(1)
+                        self.two_fa_code = match.group(1)  # Store the 2FA code
                         logger.info(f"2FA Code received: {self.two_fa_code}")
+                        # Now that the code is received, start authentication
+                        await self.client.start(phone=lambda: settings.PHONE_NUMBER,
+                                                code_callback=lambda: self.two_fa_code,
+                                                password=lambda: getpass.getpass("Enter password: "))
                     else:
                         logger.error("Failed to extract 2FA code from message.")
+                        time.sleep(1)  # Wait for the next attempt
         except Exception as e:
             logger.error(f"❌ Error handling message: {str(e)}")
 
@@ -303,27 +309,36 @@ class AdvancedBot:
     #         raise
 
     async def start(self):
-        """Starts the Telegram bot and handles the 2FA login automatically."""
+        """Start the bot and handle authentication with 2FA"""
         try:
-            # Connect the client
             logger.info("🔄 Initializing connection...")
             await self.client.connect()
 
-            # Ensure the client is authorized
+            # Validate connection state
+            if not self.client.is_connected():
+                await self.client.reconnect()
+
+            # Check if the user is already authorized
             if not await self.client.is_user_authorized():
                 logger.warning("⚠️ Session not authorized. Starting authentication...")
-
-                # Automatically fetch the 2FA code from incoming messages
+                # Start the authentication process
                 await self.client.start(
-                    phone=lambda: settings.PHONE_NUMBER,  # Provide phone number from settings
-                    code_callback=self.get_2fa_code,  # Callback to provide 2FA code automatically
-                    password=lambda: getpass.getpass("Enter password: ")  # Password callback
+                    phone=lambda: settings.PHONE_NUMBER,
+                    code_callback=lambda: self.two_fa_code,  # Provide 2FA code here
+                    password=lambda: getpass.getpass("Enter password: ")
                 )
 
-                logger.info("✅ Successfully authorized!")
+            logger.info("✅ Successfully authorized!")
+            self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
 
-            # Keep the client running until disconnected
-            await self.client.run_until_disconnected()
+            # Maintain connection
+            while True:
+                try:
+                    await self.client.run_until_disconnected()
+                except ConnectionError:
+                    logger.warning("⚠️ Connection lost. Reconnecting...")
+                    await asyncio.sleep(5)
+                    await self.client.connect()
 
         except Exception as e:
             logger.error(f"❌ Critical connection failure: {str(e)}")
