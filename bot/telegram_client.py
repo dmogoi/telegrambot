@@ -15,7 +15,7 @@ from django.db import close_old_connections
 from asgiref.sync import sync_to_async
 from .models import KeywordResponse
 from .sms import send_bulk_sms
-from telethon.errors import SessionPasswordNeededError
+from telethon.errors import SessionPasswordNeededError, FloodWaitError
 
 logger = logging.getLogger(__name__)
 
@@ -309,7 +309,6 @@ class AdvancedBot:
     #         raise
 
     async def start(self):
-        """Start the bot and handle authentication with 2FA"""
         try:
             logger.info("🔄 Initializing connection...")
             await self.client.connect()
@@ -321,12 +320,21 @@ class AdvancedBot:
             # Check if the user is already authorized
             if not await self.client.is_user_authorized():
                 logger.warning("⚠️ Session not authorized. Starting authentication...")
-                # Start the authentication process
-                await self.client.start(
-                    phone=lambda: settings.PHONE_NUMBER,
-                    code_callback=lambda: self.two_fa_code,  # Provide 2FA code here
-                    password=lambda: getpass.getpass("Enter password: ")
-                )
+
+                # Handle the case where flood wait error occurs
+                try:
+                    await self.client.start(phone=lambda: settings.PHONE_NUMBER,
+                                            code_callback=lambda: self.two_fa_code,
+                                            password=lambda: getpass.getpass("Enter password: "))
+                except FloodWaitError as e:
+                    wait_time = e.seconds
+                    logger.error(f"Flood wait error occurred. Please wait {wait_time} seconds before retrying.")
+                    # Sleep for the required time to respect the flood limit
+                    time.sleep(wait_time)
+                    logger.info("Retrying authentication...")
+                    await self.client.start(phone=lambda: settings.PHONE_NUMBER,
+                                            code_callback=lambda: self.two_fa_code,
+                                            password=lambda: getpass.getpass("Enter password: "))
 
             logger.info("✅ Successfully authorized!")
             self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
@@ -344,7 +352,6 @@ class AdvancedBot:
             logger.error(f"❌ Critical connection failure: {str(e)}")
             await self.client.disconnect()
             raise
-
     def get_2fa_code(self):
         """Returns the 2FA code automatically when requested."""
         if self.two_fa_code is not None:
