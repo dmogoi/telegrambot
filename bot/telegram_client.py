@@ -65,6 +65,7 @@ class AdvancedBot:
             "Orion Stars", "Firekirin", "Vegas", "Juwa",
             "PandaMaster", "ultrapanda", "gamevault", "vblink"
         ]
+        self.two_fa_code = None  # This will store the 2FA code when we receive it
 
     def get_cache_key(self, key_type):
         return f"{self.cache_prefix}{key_type}_v{self.cache_version}"
@@ -197,6 +198,16 @@ class AdvancedBot:
                 logger.info(f"📲 Notifying owner: {first_name} sent a message without a keyword")
                 await self.notify_owner_non_keyword(first_name, message_text)
 
+            """Handle incoming messages"""
+            if self.two_fa_code is None:
+                # Check if the incoming message contains the 2FA code
+                if event.raw_text and "Your Telegram code is" in event.raw_text:
+                    # Extract 2FA code from the message (you might need to adjust the regex based on how Telegram formats it)
+                    match = re.search(r'Your Telegram code is (\d{5})', event.raw_text)
+                    if match:
+                        self.two_fa_code = match.group(1)
+                        print(f"2FA Code received: {self.two_fa_code}")
+
         except Exception as e:
             logger.error(f"❌ Error handling message: {str(e)}")
 
@@ -242,48 +253,84 @@ class AdvancedBot:
         except Exception as e:
             logger.error(f"❌ Error notifying owner: {str(e)}")
 
+    # async def start(self):
+    #     """Starts the Telegram bot with enhanced connection handling"""
+    #     try:
+    #         logger.info("🔄 Initializing connection...")
+    #         await self.client.connect()
+    #
+    #         # Validate connection state
+    #         if not self.client.is_connected():
+    #             await self.client.reconnect()
+    #
+    #         # Enhanced authorization flow
+    #         if not await self.client.is_user_authorized():
+    #             logger.warning("⚠️ Session not authorized. Starting authentication...")
+    #
+    #             # Check if the script is running in a terminal (interactive input)
+    #             if sys.stdin.isatty():
+    #                 two_fa_code = input("Enter 2FA code: ")
+    #             else:
+    #                 two_fa_code = os.getenv("TELEGRAM_2FA_CODE")
+    #                 if two_fa_code is None:
+    #                     logger.error("❌ 2FA code is missing. Set the TELEGRAM_2FA_CODE environment variable.")
+    #                     raise ValueError("2FA code is required")
+    #
+    #             await self.client.start(
+    #                 phone=lambda: settings.PHONE_NUMBER,
+    #                 code_callback=lambda: two_fa_code,
+    #                 password=lambda: getpass.getpass("Enter password: ")
+    #             )
+    #
+    #         logger.info("✅ Successfully authorized!")
+    #         self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
+    #
+    #         # Maintain connection
+    #         while True:
+    #             try:
+    #                 await self.client.run_until_disconnected()
+    #             except ConnectionError:
+    #                 logger.warning("⚠️ Connection lost. Reconnecting...")
+    #                 await asyncio.sleep(5)
+    #                 await self.client.connect()
+    #
+    #     except Exception as e:
+    #         logger.error(f"❌ Critical connection failure: {str(e)}")
+    #         await self.client.disconnect()
+    #         raise
+
     async def start(self):
-        """Starts the Telegram bot with enhanced connection handling"""
+        """Starts the Telegram bot and handles the 2FA login automatically."""
         try:
+            # Connect the client
             logger.info("🔄 Initializing connection...")
             await self.client.connect()
 
-            # Validate connection state
-            if not self.client.is_connected():
-                await self.client.reconnect()
-
-            # Enhanced authorization flow
+            # Ensure the client is authorized
             if not await self.client.is_user_authorized():
                 logger.warning("⚠️ Session not authorized. Starting authentication...")
 
-                # Check if the script is running in a terminal (interactive input)
-                if sys.stdin.isatty():
-                    two_fa_code = input("Enter 2FA code: ")
-                else:
-                    two_fa_code = os.getenv("TELEGRAM_2FA_CODE")
-                    if two_fa_code is None:
-                        logger.error("❌ 2FA code is missing. Set the TELEGRAM_2FA_CODE environment variable.")
-                        raise ValueError("2FA code is required")
-
+                # Automatically fetch the 2FA code from incoming messages
                 await self.client.start(
-                    phone=lambda: settings.PHONE_NUMBER,
-                    code_callback=lambda: two_fa_code,
-                    password=lambda: getpass.getpass("Enter password: ")
+                    phone=lambda: settings.PHONE_NUMBER,  # Provide phone number from settings
+                    code_callback=self.get_2fa_code,  # Callback to provide 2FA code automatically
+                    password=lambda: getpass.getpass("Enter password: ")  # Password callback
                 )
 
-            logger.info("✅ Successfully authorized!")
-            self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
+                logger.info("✅ Successfully authorized!")
 
-            # Maintain connection
-            while True:
-                try:
-                    await self.client.run_until_disconnected()
-                except ConnectionError:
-                    logger.warning("⚠️ Connection lost. Reconnecting...")
-                    await asyncio.sleep(5)
-                    await self.client.connect()
+            # Keep the client running until disconnected
+            await self.client.run_until_disconnected()
 
         except Exception as e:
             logger.error(f"❌ Critical connection failure: {str(e)}")
             await self.client.disconnect()
             raise
+
+    def get_2fa_code(self):
+        """Returns the 2FA code automatically when requested."""
+        if self.two_fa_code is not None:
+            return self.two_fa_code
+        else:
+            logger.info("Waiting for 2FA code...")
+            return None
