@@ -1,7 +1,9 @@
 import getpass
 import logging
 import asyncio
+import os
 import socket
+import sys
 import time
 import re
 from collections import defaultdict
@@ -253,9 +255,19 @@ class AdvancedBot:
             # Enhanced authorization flow
             if not await self.client.is_user_authorized():
                 logger.warning("⚠️ Session not authorized. Starting authentication...")
+
+                # Check if the script is running in a terminal (interactive input)
+                if sys.stdin.isatty():
+                    two_fa_code = input("Enter 2FA code: ")
+                else:
+                    two_fa_code = os.getenv("TELEGRAM_2FA_CODE")
+                    if two_fa_code is None:
+                        logger.error("❌ 2FA code is missing. Set the TELEGRAM_2FA_CODE environment variable.")
+                        raise ValueError("2FA code is required")
+
                 await self.client.start(
                     phone=lambda: settings.PHONE_NUMBER,
-                    code_callback=lambda: input("Enter 2FA code: "),
+                    code_callback=lambda: two_fa_code,
                     password=lambda: getpass.getpass("Enter password: ")
                 )
 
