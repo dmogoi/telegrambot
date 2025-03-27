@@ -1,0 +1,129 @@
+<!-- audit_log.html -->
+{% extends "bot/partials/_base.html" %}
+{% load log_tags %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-clipboard-list fa-fw me-2"></i>Audit Logs
+        </h1>
+        <div class="filter-controls d-flex gap-2">
+            <select class="form-select form-select-sm shadow-sm" id="modelFilter">
+                <option value="">All Models</option>
+                {% for model in models %}
+                <option value="{{ model }}" {% if request.GET.model == model %}selected{% endif %}>
+                    {{ model|title }}
+                </option>
+                {% endfor %}
+            </select>
+            <select class="form-select form-select-sm shadow-sm" id="typeFilter">
+                <option value="">All Types</option>
+                {% for value, display in action_types %}
+                <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>
+                    {{ display }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="auditTable">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0">Timestamp</th>
+                            <th class="border-0">Type</th>
+                            <th class="border-0">Model</th>
+                            <th class="border-0">User</th>
+                            <th class="border-0">Action</th>
+                            <th class="border-0 text-end">IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr class="clickable-row" data-href="{% url 'bot:audit-log-detail' log.pk %}">
+                            <td>
+                                <div class="d-flex flex-column">
+                                    <span class="text-primary">{{ log.timestamp|date:"M j, Y" }}</span>
+                                    <small class="text-muted">{{ log.timestamp|date:"H:i:s" }}</small>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ log.action_type|log_badge_color }} py-2 px-3">
+                                    {{ log.get_action_type_display }}
+                                </span>
+                            </td>
+                            <td>{{ log.model_name|title|truncatechars:20 }}</td>
+                            <td>
+                                {% if log.user %}
+                                <a href="{% url 'bot:user-update' log.user.id %}" class="text-decoration-none">
+                                    <i class="fas fa-user-circle fa-fw me-1"></i>
+                                    {{ log.user.username|truncatechars:15 }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">
+                                    <i class="fas fa-server fa-fw me-1"></i>System
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-truncate" style="max-width: 250px;">
+                                <a href="{% url 'bot:audit-log-detail' log.pk %}" class="text-reset text-decoration-none">
+                                    {{ log.action|truncatechars:50 }}
+                                </a>
+                            </td>
+                            <td class="text-end">
+                                <code>{{ log.ip_address|default:"-" }}</code>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 bg-light">
+                                <div class="py-4">
+                                    <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                    <p class="h5 text-muted">No audit logs found</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    const table = $('#auditTable').DataTable({
+        order: [[0, 'desc']],
+        stateSave: true,
+        columns: [
+            { type: 'date' },
+            null,
+            null,
+            null,
+            null,
+            { orderable: false, searchable: false }
+        ],
+        language: {
+            emptyTable: "No logs available in table",
+            zeroRecords: "No matching logs found"
+        }
+    });
+
+    $('#typeFilter, #modelFilter').on('change', function() {
+        const columnIndex = $(this).attr('id') === 'typeFilter' ? 1 : 2;
+        table.column(columnIndex).search(this.value).draw();
+    });
+
+    $('.clickable-row').on('click', function() {
+        window.location = $(this).data('href');
+    });
+});
+</script>
+{% endblock %}

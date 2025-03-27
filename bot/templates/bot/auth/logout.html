@@ -1,0 +1,10 @@
+{% extends "bot/partials/_base.html" %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h3>You have been logged out</h3>
+    <a href="{% url 'bot:login' %}" class="btn btn-primary mt-3">
+        Log Back In
+    </a>
+</div>
+{% endblock %}

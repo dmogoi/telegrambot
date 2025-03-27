@@ -1,0 +1,60 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bot Admin - Login</title>
+
+    <!-- Fonts -->
+    <link href="{% static 'bot/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+
+    <!-- Styles -->
+    <link href="{% static 'bot/css/sb-admin-2.min.css' %}" rel="stylesheet">
+</head>
+
+<body class="bg-gradient-primary">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-5 col-lg-6 col-md-8">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-4">Admin Login</h1>
+                                {% if form.errors %}
+                                <div class="alert alert-danger small py-2">
+                                    Invalid credentials. Please try again.
+                                </div>
+                                {% endif %}
+                            </div>
+                            <form method="POST" action="{% url 'bot:login' %}">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <input type="text" name="username"
+                                           class="form-control form-control-user"
+                                           placeholder="Email or Username" required autofocus>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" name="password"
+                                           class="form-control form-control-user"
+                                           placeholder="Password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-user btn-block">
+                                    Login
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'bot/vendor/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'bot/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

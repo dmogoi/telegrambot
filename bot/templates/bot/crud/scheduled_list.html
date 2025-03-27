@@ -1,0 +1,105 @@
+{% extends "bot/partials/_base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="my-4">Scheduled Messages</h1>
+    <a href="{% url 'bot:scheduled-create' %}" class="btn btn-primary mb-3">New Message</a>
+    
+    <!-- Pagination Info -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <small class="text-muted">
+            Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} messages
+        </small>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead class="small">
+                <tr>
+                    <th style="width: 40%">Content</th>
+                    <th style="width: 10%">Interval</th>
+                    <th style="width: 8%">Order</th>
+                    <th style="width: 10%">Status</th>
+                    <th style="width: 15%">Image</th>
+                    <th style="width: 17%">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message in messages %}
+                <tr>
+                    <td class="text-truncate" style="max-width: 300px;" title="{{ message.content }}">
+                        {{ message.content|truncatechars:40 }}
+                    </td>
+                    <td>{{ message.interval_hours }}h</td>
+                    <td>{{ message.order }}</td>
+                    <td>
+                        {% if message.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if message.image %}
+                            <img src="{{ message.image.url }}" alt="Image" class="img-thumbnail" style="max-height: 30px; max-width: 60px;">
+                        {% else %}
+                            <span class="text-muted">None</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'bot:scheduled-update' message.pk %}" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'bot:scheduled-delete' message.pk %}" class="btn btn-sm btn-danger">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-4">No scheduled messages found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav aria-label="Messages pagination">
+        <ul class="pagination pagination-sm justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1" title="First">&laquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" title="Previous">&lsaquo;</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-2' and num < page_obj.number|add:'2' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" title="Next">&rsaquo;</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" title="Last">&raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

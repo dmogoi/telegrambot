@@ -1,0 +1,45 @@
+   # async def start(self):
+    #     """Starts the Telegram bot with enhanced connection handling"""
+    #     try:
+    #         logger.info("🔄 Initializing connection...")
+    #         await self.client.connect()
+    #
+    #         # Validate connection state
+    #         if not self.client.is_connected():
+    #             await self.client.reconnect()
+    #
+    #         # Enhanced authorization flow
+    #         if not await self.client.is_user_authorized():
+    #             logger.warning("⚠️ Session not authorized. Starting authentication...")
+    #
+    #             # Check if the script is running in a terminal (interactive input)
+    #             if sys.stdin.isatty():
+    #                 two_fa_code = input("Enter 2FA code: ")
+    #             else:
+    #                 two_fa_code = os.getenv("TELEGRAM_2FA_CODE")
+    #                 if two_fa_code is None:
+    #                     logger.error("❌ 2FA code is missing. Set the TELEGRAM_2FA_CODE environment variable.")
+    #                     raise ValueError("2FA code is required")
+    #
+    #             await self.client.start(
+    #                 phone=lambda: settings.PHONE_NUMBER,
+    #                 code_callback=lambda: two_fa_code,
+    #                 password=lambda: getpass.getpass("Enter password: ")
+    #             )
+    #
+    #         logger.info("✅ Successfully authorized!")
+    #         self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
+    #
+    #         # Maintain connection
+    #         while True:
+    #             try:
+    #                 await self.client.run_until_disconnected()
+    #             except ConnectionError:
+    #                 logger.warning("⚠️ Connection lost. Reconnecting...")
+    #                 await asyncio.sleep(5)
+    #                 await self.client.connect()
+    #
+    #     except Exception as e:
+    #         logger.error(f"❌ Critical connection failure: {str(e)}")
+    #         await self.client.disconnect()
+    #         raise

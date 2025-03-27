@@ -1,0 +1,107 @@
+{% extends "bot/partials/_base.html" %}
+
+{% block content %}
+
+<div class="container-fluid">
+    <!-- Stats Cards -->
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card border-start-primary shadow">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="text-primary">Keywords</h5>
+                            <h2>{{ keywords }}</h2>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-key fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add similar cards for other stats -->
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6>Message Activity</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6>System Status</h6>
+                </div>
+                <div class="card-body">
+                    <div class="progress mb-3">
+                        <div class="progress-bar" role="progressbar" style="width: 75%">Bot Status</div>
+                    </div>
+                    <p>Last Refresh: {{ last_refresh.last_modified|timesince }} ago</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity Table -->
+    <div class="card shadow mt-4">
+        <div class="card-header">
+            <h6>Recent Scheduled Messages</h6>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Content</th>
+                        <th>Status</th>
+                        <th>Next Run</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in scheduled_messages %}
+                    <tr>
+                        <td>{{ msg.content|truncatechars:40 }}</td>
+                        <td>
+                            {% if msg.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ msg.next_scheduled|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Chart.js Implementation
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{
+                label: 'Messages Sent',
+                data: [12, 19, 3, 5, 2, 3, 15],
+                borderColor: '#4e73df',
+                tension: 0.4
+            }]
+        }
+    });
+</script>
+
+{% endblock %}
+{% endblock %}

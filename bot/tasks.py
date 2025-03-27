@@ -4,12 +4,16 @@ import logging
 import os
 import random
 import socket
+
+import psutil
 from telethon import TelegramClient
 from django.conf import settings
 from django.utils import timezone
 from celery import shared_task
-from .models import ScheduledMessage
+from .models import ScheduledMessage, SystemMetrics, BotStatus, UserInteraction, MessageLog
 from asgiref.sync import sync_to_async
+
+from .sms import send_bulk_sms
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +59,7 @@ async def send_to_all_dialogs(client, message):
                     # Skip non-group/channel/user dialogs (if needed)
                     logger.debug(f"❌ Skipping non-group/channel dialog {dialog.name} ({dialog.id})")
                     break  # No need to retry for non-valid dialogs
+
             except Exception as e:
                 # Handle the specific error of rate limiting (Too many requests)
                 if "Too many requests" in str(e):
@@ -71,9 +76,15 @@ async def send_to_all_dialogs(client, message):
                     failures += 1
                     break  # Exit retry loop for other errors
 
+
+
     return success, failures
 
-
+@shared_task
+def send_critical_sms(message):
+    if settings.PRODUCTION:
+        send_bulk_sms(message)
+    logger.critical(f"SMS Alert: {message}")
 @shared_task
 def process_scheduled_messages():
     """Main Celery task with persistent scheduling"""
@@ -138,3 +149,38 @@ def process_scheduled_messages():
         loop.run_until_complete(runner())
     finally:
         loop.close()
+
+
+
+@shared_task
+def collect_system_metrics():
+    SystemMetrics.objects.create(
+        cpu_percent=psutil.cpu_percent(),
+        memory_percent=psutil.virtual_memory().percent,
+        disk_percent=psutil.disk_usage('/').percent
+    )
+    return "Metrics collected"
+
+
+# tasks.py
+@shared_task
+def update_bot_metrics():
+    # Get latest status
+    status = BotStatus.objects.first() or BotStatus()
+
+    # Update metrics
+    status.active_users = UserInteraction.objects.filter(
+        last_interaction__gte=timezone.now() - timezone.timedelta(minutes=15)
+    ).count()
+
+    # Calculate message rate (messages per minute)
+    recent_messages = MessageLog.objects.filter(
+        timestamp__gte=timezone.now() - timezone.timedelta(minutes=1)
+    )
+    status.message_rate = recent_messages.count()
+
+    # Update uptime
+    if status.is_connected:
+        status.uptime += timezone.now() - status.timestamp
+
+    status.save()

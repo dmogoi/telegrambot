@@ -231,7 +231,7 @@ class AdvancedBot:
             await asyncio.sleep(5)
             await self.client.connect()
 
-            # Re-authentication if needed
+            # Re-auth if needed
             if not await self.client.is_user_authorized():
                 print("⚠️ Not authorized. Please login.")
                 await self.client.send_code_request(settings.PHONE_NUMBER)

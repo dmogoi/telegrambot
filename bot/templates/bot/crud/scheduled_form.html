@@ -1,0 +1,135 @@
+{% extends "bot/partials/_base.html" %}
+{% block content %}
+<div class="container">
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+            <h1 class="h3 mb-4">{% if object %}Edit{% else %}Create{% endif %} Scheduled Message</h1>
+
+            {% include "bot/partials/_messages.html" %}
+
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <!-- Content Field -->
+                    <div class="col-12">
+                        <label for="id_content" class="form-label">Message Content</label>
+                        <textarea name="content"
+                                  id="id_content"
+                                  class="form-control {% if form.content.errors %}is-invalid{% endif %}"
+                                  rows="4"
+                                  required>{{ form.content.value|default:'' }}</textarea>
+                        {% for error in form.content.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Interval Hours -->
+                    <div class="col-md-4">
+                        <label for="id_interval_hours" class="form-label">Interval (Hours)</label>
+                        <input type="number"
+                               name="interval_hours"
+                               id="id_interval_hours"
+                               value="{{ form.interval_hours.value|default:'1' }}"
+                               class="form-control {% if form.interval_hours.errors %}is-invalid{% endif %}"
+                               min="1"
+                               required>
+                        {% for error in form.interval_hours.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Order -->
+                    <div class="col-md-4">
+                        <label for="id_order" class="form-label">Display Order</label>
+                        <input type="number"
+                               name="order"
+                               id="id_order"
+                               value="{{ form.order.value|default:'0' }}"
+                               class="form-control {% if form.order.errors %}is-invalid{% endif %}"
+                               min="0"
+                               required>
+                        {% for error in form.order.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="col-md-4">
+                        <div class="form-check form-switch mt-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="is_active"
+                                   id="id_is_active"
+                                   {% if form.is_active.value %}checked{% endif %}>
+                            <label class="form-check-label" for="id_is_active">
+                                Active Status
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div class="col-12">
+                        <label for="id_image" class="form-label">Attached Image</label>
+                        <input type="file"
+                               name="image"
+                               id="id_image"
+                               class="form-control {% if form.image.errors %}is-invalid{% endif %}"
+                               accept="image/*">
+                        {% for error in form.image.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+
+                        {% if form.instance.image %}
+                        <div class="mt-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="{{ form.instance.image.url }}"
+                                     alt="Current image"
+                                     class="img-thumbnail-preview">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="image-clear"
+                                           id="image-clear">
+                                    <label class="form-check-label text-danger" for="image-clear">
+                                        Remove current image
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fas fa-save me-2"></i>Save
+                    </button>
+                    <a href="{% url 'bot:scheduled-list' %}" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Client-side validation for numeric inputs
+document.getElementById('id_interval_hours').addEventListener('input', function(e) {
+    this.value = Math.abs(this.value);
+});
+
+document.getElementById('id_order').addEventListener('input', function(e) {
+    this.value = Math.abs(this.value);
+});
+</script>
+{% endblock %}

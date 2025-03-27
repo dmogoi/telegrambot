@@ -1,8 +1,10 @@
-#handlers.py
+# handlers.py
+from django.shortcuts import render
 from telethon import TelegramClient, events
 from django.conf import settings
 import asyncio
 import time
+
 
 class TelegramAssistant:
     def __init__(self):
@@ -38,3 +40,11 @@ class TelegramAssistant:
         await self.client.start(settings.PHONE_NUMBER)
         print("✅ Connected to Telegram!")
         await self.client.run_until_disconnected()
+
+
+def permission_denied_view(request, exception):
+    return render(request, '403.html', status=403)
+
+
+def page_not_found_view(request, exception):
+    return render(request, '404.html', status=404)

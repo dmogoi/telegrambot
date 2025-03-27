@@ -1,0 +1,86 @@
+<!-- templates/admin/realtime_metrics.html -->
+{% extends "bot/partials/_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Real-time Metrics</h1>
+
+    <div class="row">
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Message Rate</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="messageRateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Active Users</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="activeUsersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// WebSocket Connection
+const socket = new WebSocket(`wss://${window.location.host}/ws/admin/dashboard/`);
+
+socket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    updateCharts(data.metrics);
+};
+
+function updateCharts(metrics) {
+    messageRateChart.data.datasets[0].data.push(metrics.message_rate);
+    activeUsersChart.data.datasets[0].data.push(metrics.active_users);
+
+    if(messageRateChart.data.labels.length > 30) {
+        messageRateChart.data.labels.shift();
+        messageRateChart.data.datasets[0].data.shift();
+    }
+
+    messageRateChart.update();
+    activeUsersChart.update();
+}
+
+// Initialize Charts
+const messageRateChart = new Chart(document.getElementById('messageRateChart'), {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Messages/Min',
+            data: [],
+            borderColor: '#4e73df',
+            tension: 0.3
+        }]
+    }
+});
+
+const activeUsersChart = new Chart(document.getElementById('activeUsersChart'), {
+    type: 'bar',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Active Users',
+            data: [],
+            backgroundColor: '#1cc88a'
+        }]
+    }
+});
+</script>
+{% endblock %}

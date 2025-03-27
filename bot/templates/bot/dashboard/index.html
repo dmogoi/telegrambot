@@ -1,0 +1,351 @@
+{% extends "bot/partials/_base.html" %}
+{% load humanize %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" rel="stylesheet">
+<style>
+    .metric-card {
+        transition: transform 0.3s ease;
+        min-height: 120px;
+    }
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+    }
+    .chart-container {
+        height: 400px;
+        min-height: 400px;
+    }
+    .realtime-badge {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: 0.7rem;
+    }
+    .chart-card {
+        border-radius: 0.35rem;
+        margin-bottom: 1.5rem;
+        background: #fff;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15)!important;
+    }
+    .chart-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e3e6f0;
+        background-color: #f8f9fc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- System Metrics Row -->
+    <div class="row">
+        <!-- System Status Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-left-primary shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                System Status
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <span id="connection-status" class="badge bg-{{ connection_status|yesno:"success,danger" }}">
+                                    {{ connection_status|yesno:"Connected,Disconnected" }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-server fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Uptime Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-left-success shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Bot Uptime
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="uptime">
+                                {{ uptime }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Resources Card -->
+        <div class="col-xl-6 col-md-12 mb-4">
+            <div class="card metric-card border-left-info shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col-4 text-center">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                CPU Usage
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="cpu-percent">
+                                {{ system_metrics.cpu|floatformat:1 }}%
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Memory Usage
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="memory-percent">
+                                {{ system_metrics.memory|floatformat:1 }}%
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Disk Usage
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="disk-percent">
+                                {{ system_metrics.disk|floatformat:1 }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Metrics Row -->
+    <div class="row">
+        <!-- Active Users Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-left-warning shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Active Users (24h)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="active-users">
+                                {{ active_users }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-left-danger shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Messages (24h)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="messages-handled">
+                                {{ messages_handled }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-comments fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Success Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-left-success shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                SMS Success Rate
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="sms-success-rate">
+                                {{ sms_success_rate|floatformat:1 }}%
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percent fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Rate Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card border-left-dark shadow h-100 py-2">
+                <span class="badge bg-info realtime-badge">LIVE</span>
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                Error Rate (24h)
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="error-rate">
+                                {{ error_rate|floatformat:1 }}%
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <!-- Message Activity Timeline -->
+        <div class="col-xl-8 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-chart-line fa-fw"></i> Message Activity (Last 7 Days)</h6>
+                </div>
+                <div class="chart-container p-3">
+                    <canvas id="messageActivityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Type Distribution -->
+        <div class="col-xl-4 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-chart-pie fa-fw"></i> Message Types</h6>
+                </div>
+                <div class="chart-container p-3">
+                    <canvas id="messageTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- SMS Performance -->
+        <div class="col-xl-12 mb-4">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-chart-bar fa-fw"></i> SMS Delivery Performance</h6>
+                </div>
+                <div class="chart-container p-3">
+                    <canvas id="smsPerformanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+<script>
+// Real-time Updates
+function updateMetrics() {
+    fetch('/api/realtime-metrics/')
+        .then(response => response.json())
+        .then(data => {
+            // Update system metrics
+            document.getElementById('cpu-percent').textContent = `${data.cpu.toFixed(1)}%`;
+            document.getElementById('memory-percent').textContent = `${data.memory.toFixed(1)}%`;
+            document.getElementById('disk-percent').textContent = `${data.disk.toFixed(1)}%`;
+
+            // Update connection status
+            const statusBadge = document.getElementById('connection-status');
+            statusBadge.className = `badge bg-${data.is_connected ? 'success' : 'danger'}`;
+            statusBadge.textContent = data.is_connected ? 'Connected' : 'Disconnected';
+
+            // Update other metrics
+            document.getElementById('uptime').textContent = data.uptime;
+            document.getElementById('active-users').textContent = data.active_users;
+            document.getElementById('messages-handled').textContent = data.messages_handled;
+            document.getElementById('sms-success-rate').textContent = `${data.sms_success_rate.toFixed(1)}%`;
+            document.getElementById('error-rate').textContent = `${data.error_rate.toFixed(1)}%`;
+        })
+        .catch(error => console.error('Metrics update error:', error));
+}
+
+// Initialize Charts
+const charts = {
+    messageActivity: new Chart(document.getElementById('messageActivityChart'), {
+        type: 'line',
+        data: {
+            labels: {{ message_dates|safe }},
+            datasets: [{
+                label: 'Messages',
+                data: {{ message_counts }},
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { type: 'time', time: { unit: 'day' }},
+                y: { beginAtZero: true }
+            }
+        }
+    }),
+
+    messageType: new Chart(document.getElementById('messageTypeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Keywords', 'Scheduled', 'Direct'],
+            datasets: [{
+                data: {{ message_type_distribution }},
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+        }
+    }),
+
+    smsPerformance: new Chart(document.getElementById('smsPerformanceChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Success', 'Failed', 'Pending'],
+            datasets: [{
+                label: 'SMS Count',
+                data: {{ sms_distribution }},
+                backgroundColor: ['#1cc88a', '#e74a3b', '#f6c23e']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } }
+        }
+    })
+};
+
+// Initial metrics load
+updateMetrics();
+// Update metrics every 5 seconds
+setInterval(updateMetrics, 5000);
+</script>
+{% endblock %}

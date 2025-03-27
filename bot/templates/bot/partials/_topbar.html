@@ -1,0 +1,93 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-body border-bottom shadow-sm">
+    <div class="container-fluid">
+        <!-- Sidebar Toggle -->
+        <button id="sidebarToggle" class="btn btn-link text-body">
+            <i class="fas fa-bars fa-lg"></i>
+        </button>
+
+        <!-- Navbar Items -->
+        <ul class="navbar-nav ms-auto align-items-center gap-2">
+            <!-- Notifications Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link position-relative" href="#!" role="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-bell"></i>
+                    {% if unread_notifications %}
+                    <span class="badge bg-danger notification-badge">{{ unread_notifications|length }}</span>
+                    {% endif %}
+                </a>
+                <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3 mt-2">
+                    <div class="px-3 py-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0">Notifications</h6>
+                            <a href="#" class="small text-muted">Mark all as read</a>
+                        </div>
+                        <div class="notification-list" style="max-height: 400px; overflow-y: auto;">
+                            {% for notification in unread_notifications %}
+                            <a class="dropdown-item d-flex align-items-start py-2" href="#">
+                                <i class="fas fa-{{ notification.icon }} text-{{ notification.metadata.severity|default:'info' }} me-3 mt-1"></i>
+                                <div class="w-100">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-medium">{{ notification.get_type_display }}</span>
+                                        <small class="text-muted">{{ notification.timestamp|timesince }} ago</small>
+                                    </div>
+                                    <p class="mb-0 small">{{ notification.message }}</p>
+                                </div>
+                            </a>
+                            {% empty %}
+                            <div class="text-center py-3 text-muted">
+                                <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                <p class="mb-0">All caught up!<br>No new notifications</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <!-- Theme Switcher -->
+            <li class="nav-item">
+                <button class="btn theme-switcher-btn" onclick="toggleTheme()">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+            </li>
+
+            <!-- User Dropdown -->
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center py-2"
+                   href="#!" role="button" data-bs-toggle="dropdown">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-icon me-2">
+                            <i class="fas fa-user-circle fa-xl text-primary"></i>
+                        </div>
+                        <div class="d-none d-md-block">
+                            <span class="fw-medium">{{ request.user.username }}</span>
+                            <small class="d-block text-muted text-truncate" style="max-width: 160px;">
+                                {{ request.user.email|default:"System Administrator" }}
+                            </small>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3 mt-2">
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 'bot:profile' %}">
+                        <i class="fas fa-user-edit text-muted me-2"></i>
+                        Profile Settings
+                    </a>
+                    <a class="dropdown-item d-flex align-items-center" href="{% url 'bot:settings' %}">
+                        <i class="fas fa-cogs text-muted me-2"></i>
+                        Account Settings
+                    </a>
+                    <div class="dropdown-divider my-2"></div>
+                    <form method="post" action="{% url 'bot:logout' %}" class="dropdown-item p-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link text-decoration-none text-dark w-100 text-start py-2 px-3">
+                            <i class="fas fa-sign-out-alt text-muted me-2"></i>
+                            Logout
+                        </button>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>

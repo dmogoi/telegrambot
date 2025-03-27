@@ -1,0 +1,58 @@
+{% extends "bot/partials/_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h3 class="card-title mb-4">User Profile</h3>
+
+                    <div class="text-center mb-4">
+                        <div class="avatar-display mb-3">
+                            <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                        </div>
+                        <h4>{{ user.get_full_name|default:user.username }}</h4>
+                        <p class="text-muted">@{{ user.username }}</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control"
+                                       name="first_name" value="{{ user.first_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control"
+                                       name="last_name" value="{{ user.last_name }}">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control"
+                                       value="{{ user.email }}" readonly>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control"
+                                       value="{{ user.username }}" readonly>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>
+                                        Update Profile
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

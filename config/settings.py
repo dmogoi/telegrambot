@@ -59,6 +59,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',  # Add this line
+    'channels',
     'bot',
 ]
 
@@ -71,6 +73,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'bot.middleware.PermissionDebugMiddleware',
+    'bot.middleware.RoleValidationMiddleware',
+
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -78,7 +83,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'bot/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,14 +91,18 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'bot.context_processors.notifications',
             ],
+            'libraries': {
+                'log_tags': 'bot.templatetags.log_tags',
+            },
         },
     },
 ]
-
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
+USE_TZ = True
+TIME_ZONE = 'NAIROBI'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -106,12 +115,18 @@ DATABASES = {
 
 
 
-# CELERY_BROKER_URL = 'redis://localhost:6379/0'
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_BROKER_URL = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
-CELERY_RESULT_BACKEND = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# CELERY_BROKER_URL = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://red-cv998kd2ng1s73d1o3f0:6379/0'
 
-
+ASGI_APPLICATION = 'config.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [("redis", 6379)]},
+    },
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -151,15 +166,37 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'bot/static'),
+]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+AUTHENTICATION_BACKENDS = [
+    'bot.backends.EmailOrUsernameAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
+LOGIN_URL = 'bot:login'
 
+LOGIN_REDIRECT_URL = 'bot:dashboard'
+LOGOUT_REDIRECT_URL = 'bot:login'
+AUTHENTICATION_BACKENDS = [
+    'bot.backends.EmailOrUsernameAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# settings.py
+SESSION_COOKIE_AGE = 3600  # 1 hour session
+SESSION_SAVE_EVERY_REQUEST = True  # Reset timer on activity
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Clear session on browser close
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'bot.User'
+
 
 # Only during development, serve media files
 # if DEBUG:

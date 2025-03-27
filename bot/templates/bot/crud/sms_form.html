@@ -1,0 +1,83 @@
+{% extends "bot/partials/_base.html" %}
+{% block content %}
+<div class="container">
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+            <h1 class="h3 mb-4">{% if object %}Edit{% else %}Create{% endif %} SMS Recipient</h1>
+
+            {% include "bot/partials/_messages.html" %}
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <!-- Name -->
+                    <div class="col-md-6">
+                        <label for="id_name" class="form-label">Name</label>
+                        <input type="text"
+                               name="name"
+                               id="id_name"
+                               value="{{ form.name.value|default:'' }}"
+                               class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                               required>
+                        {% for error in form.name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="col-md-6">
+                        <label for="id_phone" class="form-label">Phone Number</label>
+                        <input type="tel"
+                               name="phone"
+                               id="id_phone"
+                               value="{{ form.phone.value|default:'' }}"
+                               class="form-control {% if form.phone.errors %}is-invalid{% endif %}"
+                               pattern="^\+?[0-9]{9,15}$"
+                               required>
+                        <small class="form-text text-muted">Format: +254712345678</small>
+                        {% for error in form.phone.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Active Status -->
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="is_active"
+                                   id="id_is_active"
+                                   {% if form.is_active.value %}checked{% endif %}>
+                            <label class="form-check-label" for="id_is_active">
+                                Active Status
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fas fa-save me-2"></i>Save
+                    </button>
+                    <a href="{% url 'bot:sms-list' %}" class="btn btn-outline-secondary px-4">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add custom validation for phone number
+document.getElementById('id_phone').addEventListener('input', function(e) {
+    const phonePattern = /^\+?[0-9]{9,15}$/;
+    if (!phonePattern.test(e.target.value)) {
+        e.target.setCustomValidity('Please enter a valid phone number');
+    } else {
+        e.target.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

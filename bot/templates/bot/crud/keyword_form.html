@@ -1,0 +1,103 @@
+{% extends "bot/partials/_base.html" %}
+{% block content %}
+<div class="container">
+    <div class="card shadow-lg border-0">
+        <div class="card-body p-4">
+            <h1 class="h3 mb-4">{% if object %}Edit{% else %}Create{% endif %} Keyword</h1>
+
+            {% include "bot/partials/_messages.html" %}
+
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <!-- Trigger Word -->
+                    <div class="col-md-6">
+                        <label for="id_trigger_word" class="form-label">Trigger Word</label>
+                        <input type="text"
+                               name="trigger_word"
+                               id="id_trigger_word"
+                               value="{{ form.trigger_word.value|default:'' }}"
+                               class="form-control {% if form.trigger_word.errors %}is-invalid{% endif %}"
+                               required>
+                        {% for error in form.trigger_word.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Priority -->
+                    <div class="col-md-6">
+                        <label for="id_priority" class="form-label">Priority</label>
+                        <select name="priority"
+                                id="id_priority"
+                                class="form-select {% if form.priority.errors %}is-invalid{% endif %}">
+                            {% for value, label in form.fields.priority.choices %}
+                                <option value="{{ value }}"
+                                    {% if form.priority.value == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Response Text -->
+                    <div class="col-12">
+                        <label for="id_response_text" class="form-label">Response Text</label>
+                        <textarea name="response_text"
+                                  id="id_response_text"
+                                  class="form-control {% if form.response_text.errors %}is-invalid{% endif %}"
+                                  rows="3"
+                                  required>{{ form.response_text.value|default:'' }}</textarea>
+                        {% for error in form.response_text.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Notify Owner -->
+                    <div class="col-md-6">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="notify_owner"
+                                   id="id_notify_owner"
+                                   {% if form.notify_owner.value %}checked{% endif %}>
+                            <label class="form-check-label" for="id_notify_owner">
+                                Notify Owner
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Icon Upload -->
+                    <div class="col-md-6">
+                        <label for="id_icon" class="form-label">Icon</label>
+                        <input type="file"
+                               name="icon"
+                               id="id_icon"
+                               class="form-control {% if form.icon.errors %}is-invalid{% endif %}"
+                               accept="image/*">
+                        {% if form.instance.icon %}
+                        <div class="mt-2">
+                            <img src="{{ form.instance.icon.url }}"
+                                 class="img-thumbnail-preview"
+                                 alt="Current icon">
+                        </div>
+                        {% endif %}
+                        {% for error in form.icon.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-success px-4">
+                        <i class="fas fa-save me-2"></i>Save
+                    </button>
+                    <a href="{% url 'bot:keyword-list' %}" class="btn btn-outline-secondary px-4">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

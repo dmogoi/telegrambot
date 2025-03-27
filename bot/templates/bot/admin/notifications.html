@@ -1,0 +1,38 @@
+{% extends "bot/partials/_base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">System Notifications</h1>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Alerts</h6>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for notification in notifications %}
+                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start 
+                    {% if not notification.read %}list-group-item-warning{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            <i class="fas fa-{{ notification.icon }}"></i>
+                            {{ notification.get_type_display }}
+                        </h5>
+                        <small>{{ notification.timestamp|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    {% if notification.metadata %}
+                    <small>Details: {{ notification.metadata }}</small>
+                    {% endif %}
+                </a>
+                {% empty %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-2x text-success"></i>
+                    <p class="mt-3">No unread notifications</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <!-- Brand Logo -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'bot:dashboard' %}">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">Bot Admin</div>
+    </a>
+
+    <hr class="sidebar-divider">
+
+    <!-- Dashboard Link -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:dashboard' %}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <!-- Management Section -->
+    <div class="sidebar-heading">Management</div>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:keyword-list' %}">
+            <i class="fas fa-fw fa-key"></i>
+            <span>Keywords</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:sms-list' %}">
+            <i class="fas fa-fw fa-sms"></i>
+            <span>SMS Recipients</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:scheduled-list' %}">
+            <i class="fas fa-fw fa-clock"></i>
+            <span>Scheduled Messages</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <!-- Administration Section -->
+    <div class="sidebar-heading">Administration</div>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:user-list' %}">
+            <i class="fas fa-fw fa-users-cog"></i>
+            <span>User Management</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:audit-log' %}">
+            <i class="fas fa-fw fa-clipboard-list"></i>
+            <span>Audit Logs</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:system-health' %}">
+            <i class="fas fa-fw fa-heartbeat"></i>
+            <span>System Health</span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:notifications' %}">
+            <i class="fas fa-fw fa-bell"></i>
+            <span>Notifications</span>
+            <span class="badge badge-danger badge-counter" id="notification-counter"></span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <!-- Advanced Section -->
+    <div class="sidebar-heading">Advanced</div>
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'bot:realtime-metrics' %}">
+            <i class="fas fa-fw fa-chart-line"></i>
+            <span>Realtime Metrics</span>
+        </a>
+    </li>
+
+    <!-- Optional: Collapsible Menu Items -->
+    <div class="sidebar-heading">Tools</div>
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
+            <i class="fas fa-fw fa-wrench"></i>
+            <span>Maintenance</span>
+        </a>
+        <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <h6 class="collapse-header">System Tools:</h6>
+                <a class="collapse-item" href="#">Log Viewer</a>
+                <a class="collapse-item" href="#">Database Console</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Sidebar Toggler -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+</ul>

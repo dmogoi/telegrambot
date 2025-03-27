@@ -1,0 +1,203 @@
+{% extends "bot/partials/_base.html" %}
+{% load static humanize %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">System Health Monitor</h1>
+
+    <div class="row">
+        <!-- Connection Status Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-{{ status.health_status_color }} shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Connection Status
+                                <span class="badge badge-{{ status.health_status_color }}">
+                                    {{ status.health_status_display }}
+                                </span>
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {% if status.is_connected %}
+                                <i class="fas fa-check-circle text-success"></i> Online
+                                {% else %}
+                                <i class="fas fa-times-circle text-danger"></i> Offline
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-plug fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operational Metrics Card -->
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Operational Metrics
+                            </div>
+                            <div class="mt-2 text-muted small">
+                                <div class="d-flex justify-content-between">
+                                    <span>Uptime:</span>
+                                    <span class="font-weight-bold">{{ status.uptime }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Active Users:</span>
+                                    <span class="font-weight-bold">{{ status.active_users }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Message Rate:</span>
+                                    <span class="font-weight-bold">{{ status.message_rate|floatformat }} msg/min</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tachometer-alt fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Metrics Cards -->
+        <div class="col-xl-4 col-lg-6">
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="card border-left-info shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        CPU Usage
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ system.cpu|floatformat }}%
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-microchip fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 mb-4">
+                    <div class="card border-left-success shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Memory Usage
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ system.memory|floatformat }}%
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-memory fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 mb-4">
+                    <div class="card border-left-warning shadow h-100 py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Disk Usage
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                        {{ system.disk|floatformat }}%
+                                    </div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-hdd fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Resource Usage History</h6>
+                    <div class="small">Last 24 hours</div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="healthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Health Chart
+new Chart(document.getElementById('healthChart'), {
+    type: 'line',
+    data: {
+        labels: {{ metrics.labels|safe }},
+        datasets: [{
+            label: 'CPU Usage (%)',
+            data: {{ metrics.cpu }},
+            borderColor: '#4e73df',
+            tension: 0.3,
+            fill: false
+        }, {
+            label: 'Memory Usage (%)',
+            data: {{ metrics.memory }},
+            borderColor: '#1cc88a',
+            tension: 0.3,
+            fill: false
+        }, {
+            label: 'Disk Usage (%)',
+            data: {{ metrics.disk }},
+            borderColor: '#f6c23e',
+            tension: 0.3,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            },
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'hour',
+                    displayFormats: {
+                        hour: 'HH:mm'
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

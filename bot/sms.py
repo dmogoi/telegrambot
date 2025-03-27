@@ -1,9 +1,9 @@
-# sms.py
 import requests
 import logging
 from django.conf import settings
+from django.utils import timezone
 
-from .models import SMSRecipient
+from .models import SMSRecipient, SMSNotification, Notification
 import phonenumbers
 from django.core.exceptions import ValidationError
 
@@ -18,6 +18,13 @@ def send_bulk_sms(message):
         if not recipients.exists():
             logger.warning("No active SMS recipients found")
             return {"status": False, "message": "No active recipients"}
+
+        # Create notifications first
+        notifications = [
+            SMSNotification(recipient=recipient, message=message, status='pending')
+            for recipient in recipients
+        ]
+        SMSNotification.objects.bulk_create(notifications)
 
         # Format phone numbers properly
         phones = []
@@ -51,14 +58,45 @@ def send_bulk_sms(message):
         )
 
         logger.info(f"SMS API status code: {response.status_code}")
-        result = response.json()
+
+        if response.status_code != 200:
+            logger.error(f"Failed SMS API response: {response.text}")
+            return {"status": False, "error": "Failed to send SMS"}
+
+        try:
+            result = response.json()
+        except ValueError:
+            logger.error("Invalid JSON response from SMS API")
+            return {"status": False, "error": "Invalid API response"}
+
         logger.debug(f"SMS API response: {result}")
+
+        SMSNotification.objects.filter(id__in=[n.id for n in notifications]).update(
+            status='success',
+            sent_at=timezone.now()
+        )
+
+        # Check SMS balance
+        if result.get('balance', 100) < 10:
+            Notification.objects.create(
+                type='SMS_BALANCE',
+                message=f"SMS API Balance Low: {result['balance']} credits remaining",
+                icon='exclamation-triangle',
+                metadata={'balance': result['balance']}
+            )
 
         return result
 
     except requests.exceptions.RequestException as e:
         logger.error(f"SMS request failed: {str(e)}")
         return {"status": False, "error": str(e)}
+
     except Exception as e:
         logger.error(f"Unexpected SMS error: {str(e)}")
+        Notification.objects.create(
+            type='SMS_ERROR',
+            message=f"SMS API Error: {str(e)}",
+            icon='times-circle',
+            metadata={'error': str(e)}
+        )
         return {"status": False, "error": str(e)}

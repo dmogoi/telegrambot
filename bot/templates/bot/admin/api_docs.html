@@ -1,0 +1,39 @@
+<!-- templates/api_docs.html -->
+{% extends "bot/partials/_base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">API Documentation</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Available Endpoints</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>/api/metrics/</td>
+                            <td>GET</td>
+                            <td>Retrieve real-time system metrics</td>
+                        </tr>
+                        <tr>
+                            <td>/api/users/&lt;user_id&gt;/</td>
+                            <td>PUT</td>
+                            <td>Update user roles (Admin only)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

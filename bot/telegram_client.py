@@ -7,13 +7,15 @@ import sys
 import time
 import re
 from collections import defaultdict
+from django.utils import timezone  # Correct import
+
 
 from django.core.cache import cache
 from telethon import TelegramClient, events
 from django.conf import settings
 from django.db import close_old_connections
 from asgiref.sync import sync_to_async
-from .models import KeywordResponse
+from .models import KeywordResponse, Notification, BotStatus
 from .sms import send_bulk_sms
 from telethon.errors import SessionPasswordNeededError, FloodWaitError
 
@@ -57,6 +59,9 @@ class AdvancedBot:
         )
         self.keyword_cache = {'high': [], 'normal': []}
         self.last_refresh = 0
+        self._last_ping = 0
+        self._monitor_task = None
+        self.status_lock = asyncio.Lock()  # Add this line
         self.rate_limiter = RateLimiter()
         self.phone_regex = re.compile(r'^\+?[0-9]{9,15}$')
         logger.info("✅ Telegram client initialized")
@@ -210,7 +215,7 @@ class AdvancedBot:
                     if match:
                         self.two_fa_code = match.group(1)  # Store the 2FA code
                         logger.info(f"2FA Code received: {self.two_fa_code}")
-                        # Now that the code is received, start authentication
+                        # Now that the code is received, start auth
                         await self.client.start(phone=lambda: settings.PHONE_NUMBER,
                                                 code_callback=lambda: self.two_fa_code,
                                                 password=lambda: getpass.getpass("Enter password: "))
@@ -244,6 +249,17 @@ class AdvancedBot:
             else:
                 logger.info(f"✅ SMS sent successfully. Bulk ID: {result.get('bulkId', 'N/A')}")
 
+            Notification.objects.create(
+                type='KEYWORD_TRIGGER',
+                message=f"Keyword '{response.trigger_word}' triggered by {user.first_name}",
+                icon='comment-alt',
+                metadata={
+                    'keyword': response.trigger_word,
+                    'user_id': user_id,
+                    'message': message_text
+                }
+            )
+
         except Exception as e:
             logger.error(f"❌ SMS notification error: {str(e)}")
 
@@ -274,7 +290,7 @@ class AdvancedBot:
     #
     #         # Enhanced authorization flow
     #         if not await self.client.is_user_authorized():
-    #             logger.warning("⚠️ Session not authorized. Starting authentication...")
+    #             logger.warning("⚠️ Session not authorized. Starting auth...")
     #
     #             # Check if the script is running in a terminal (interactive input)
     #             if sys.stdin.isatty():
@@ -309,54 +325,193 @@ class AdvancedBot:
     #         raise
 
     async def start(self):
+        """Main bot startup sequence with full status tracking"""
         try:
-            logger.info("🔄 Initializing connection...")
-            await self.client.connect()
-
-            # Validate connection state
-            if not self.client.is_connected():
-                await self.client.reconnect()
-
-            # Check if the user is already authorized
-            if not await self.client.is_user_authorized():
-                logger.warning("⚠️ Session not authorized. Starting authentication...")
-
-                # Handle the case where flood wait error occurs
-                try:
-                    await self.client.start(phone=lambda: settings.PHONE_NUMBER,
-                                            code_callback=lambda: self.two_fa_code,
-                                            password=lambda: getpass.getpass("Enter password: "))
-                except FloodWaitError as e:
-                    wait_time = e.seconds
-                    logger.error(f"Flood wait error occurred. Please wait {wait_time} seconds before retrying.")
-                    # Sleep for the required time to respect the flood limit
-                    time.sleep(wait_time)
-                    logger.info("Retrying authentication...")
-                    await self.client.start(phone=lambda: settings.PHONE_NUMBER,
-                                            code_callback=lambda: self.two_fa_code,
-                                            password=lambda: getpass.getpass("Enter password: "))
-
-            logger.info("✅ Successfully authorized!")
-            self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
-
-            # Maintain connection
-            while True:
-                try:
-                    await self.client.run_until_disconnected()
-                except ConnectionError:
-                    logger.warning("⚠️ Connection lost. Reconnecting...")
-                    await asyncio.sleep(5)
-                    await self.client.connect()
+            logger.info("🔄 Initializing Telegram connection...")
+            await self._connect_client()
+            await self._handle_authorization()
+            await self._setup_handlers()
+            await self._maintain_connection()
 
         except Exception as e:
-            logger.error(f"❌ Critical connection failure: {str(e)}")
-            await self.client.disconnect()
+            logger.critical(f"🔥 Critical startup failure: {str(e)}")
+            await self._shutdown_sequence()
             raise
-    def get_2fa_code(self):
-        """Returns the 2FA code automatically when requested."""
-        if self.two_fa_code is not None:
-            return self.two_fa_code
-        else:
-            logger.info("Waiting for 2FA code...")
-            time.sleep(1)  # Wait for a second before trying again
-            return None
+
+    async def _connect_client(self):
+        """Establish initial connection and update status"""
+        try:
+            if not self.client.is_connected():
+                await self.client.connect()
+
+            await self.update_connection_status(True)
+            logger.info("✅ Successfully connected to Telegram servers")
+
+        except ConnectionError as ce:
+            logger.error(f"🔌 Connection error: {str(ce)}")
+            await self.update_connection_status(False)
+            raise
+
+    async def _handle_authorization(self):
+        """Complete authorization flow with status tracking"""
+        try:
+            if not await self.client.is_user_authorized():
+                logger.warning("🔒 Starting authorization sequence...")
+                await self._perform_login()
+
+            logger.info("🔓 Authorization successful")
+            await self.update_connection_status(True)
+
+        except FloodWaitError as fwe:
+            logger.error(f"⏳ Flood wait required: {fwe.seconds} seconds")
+            await self.update_connection_status(False)
+            await asyncio.sleep(fwe.seconds)
+            await self._handle_authorization()
+
+        except Exception as auth_error:
+            logger.error(f"🔐 Authorization failed: {str(auth_error)}")
+            await self.update_connection_status(False)
+            raise
+
+    async def _perform_login(self):
+        """Handle login process with 2FA capture"""
+        try:
+            await self.client.start(
+                phone=lambda: settings.PHONE_NUMBER,
+                code_callback=self.get_2fa_code,
+                password=lambda: getpass.getpass("Enter password: ")
+            )
+            logger.info("🔑 Login credentials accepted")
+
+        except SessionPasswordNeededError:
+            logger.warning("🔐 2FA code required")
+            self.two_fa_code = None
+            while not self.two_fa_code:
+                await asyncio.sleep(1)
+            await self._perform_login()
+
+    async def _setup_handlers(self):
+        """Register event handlers with connection state"""
+        self.client.add_event_handler(self.message_handler, events.NewMessage(incoming=True))
+        logger.info("👂 Event handlers registered")
+        await self.update_connection_status(True)
+
+    async def _maintain_connection(self):
+        """Main persistent connection with real-time health checks"""
+        logger.info("🌐 Entering connection maintenance loop")
+        while True:
+            try:
+                # Add continuous verification during connection
+                await self.client.run_until_disconnected()
+                await self._verify_connection()  # Immediate check after disconnect
+                await self.update_connection_status(False)
+
+            except (ConnectionError, TimeoutError) as conn_error:
+                logger.warning(f"⚠️ Connection error: {str(conn_error)}")
+                await self.update_connection_status(False)
+                await self._reconnect_sequence()
+
+            # Add periodic verification while connected
+            finally:
+                if self.client.is_connected():
+                    # Immediate verification check
+                    if not await self._verify_connection():
+                        logger.warning("🕵️♂️ Connection state mismatch detected!")
+                        await self.update_connection_status(False)
+                        await self._reconnect_sequence()
+                    else:
+                        # Force status confirmation
+                        await self.update_connection_status(True)
+
+    async def _verify_connection(self):
+        """Comprehensive connection verification"""
+        try:
+            # Layer 1: TCP-level check
+            if not self.client.is_connected():
+                return False
+
+            # Layer 2: Force API call verification
+            await self.client.get_me()
+
+            # Layer 3: Check recent activity
+            last_active = self.client._sender.last_recv
+            if time.time() - last_active > 30:  # 30 seconds inactivity threshold
+                logger.warning("🕒 No recent activity detected")
+                return False
+
+            return True
+        except Exception:
+            return False
+
+    async def _reconnect_sequence(self):
+        """Managed reconnection attempts with instant status updates"""
+        logger.warning("🔌 Starting reconnection sequence")
+        await self.update_connection_status(False)
+
+        for attempt in range(1, 6):
+            try:
+                # Full disconnect/connect cycle
+                await self.client.disconnect()
+                await self.client.connect()
+
+                # Immediate verification after reconnect
+                if await self._verify_connection():
+                    await self.update_connection_status(True)
+                    logger.info(f"✅ Reconnected after {attempt} attempts")
+                    return
+
+                await asyncio.sleep(2 ** attempt)
+                await self.update_connection_status(False)
+
+            except Exception as e:
+                logger.error(f"⏳ Reconnect attempt {attempt} failed: {str(e)}")
+                await self.update_connection_status(False)
+
+        logger.critical("🚨 Permanent connection loss")
+        await self.update_connection_status(False)
+        raise ConnectionError("Failed to reconnect after 5 attempts")
+
+    async def _shutdown_sequence(self):
+        """Graceful shutdown procedure"""
+        logger.info("🛑 Initiating shutdown sequence...")
+        await self.update_connection_status(False)
+        if self.client.is_connected():
+            await self.client.disconnect()
+        logger.info("👋 Bot shutdown complete")
+
+    async def update_connection_status(self, is_connected: bool):
+        """Atomic status update with uptime tracking and state validation"""
+        try:
+            async with self.status_lock:
+                now = timezone.now()
+                current_status = await sync_to_async(BotStatus.objects.first)()
+
+                if not current_status:
+                    current_status = await sync_to_async(BotStatus.objects.create)(
+                        is_connected=is_connected,
+                        timestamp=now
+                    )
+                    logger.info("🆕 Created new status record")
+                    return
+
+                # Only update if state actually changed
+                if current_status.is_connected != is_connected:
+                    # Calculate accurate uptime
+                    if current_status.is_connected:
+                        delta = now - current_status.timestamp
+                        current_status.uptime += delta
+                        logger.debug(f"⏱️ Added {delta.total_seconds()}s to uptime")
+
+                    current_status.is_connected = is_connected
+                    current_status.timestamp = now
+                    await sync_to_async(current_status.save)()
+                    logger.info(f"🔀 Status changed to {'CONNECTED' if is_connected else 'DISCONNECTED'}")
+
+                # Force periodic refresh even if state appears unchanged
+                else:
+                    current_status.timestamp = now
+                    await sync_to_async(current_status.save)()
+                    logger.debug("🔄 Status timestamp refreshed")
+
+        except Exception as e:
+            logger.error(f"📴 Status update error: {str(e)}")

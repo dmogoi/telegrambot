@@ -30,4 +30,8 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'bot.tasks.process_scheduled_messages',
         'schedule': crontab(minute=0, hour='*/6'),  # Every 6 hours
     },
+    'collect-metrics-every-5-minutes': {
+            'task': 'bot.tasks.collect_system_metrics',
+            'schedule': 300.0,  # Every 5 minutes
+        },
 }
